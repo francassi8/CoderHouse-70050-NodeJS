@@ -1,0 +1,13 @@
+import { dataPath } from "../index.js"
+import fs from 'node:fs'
+
+async function ejecutarPromesasYArchivos(){
+    try{
+        const resultado = JSON.parse(await fs.promises.readFile(dataPath + '/BD/market.txt','utf-8'))
+        console.log(resultado)
+    }catch (e){
+        console.log('Algo fallo')
+    }
+}
+
+ejecutarPromesasYArchivos()
