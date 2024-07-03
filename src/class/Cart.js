@@ -11,8 +11,10 @@ class cart {
 
     async getCartList(){
         const list = await fs.promises.readFile(this.path, 'utf-8')
-        this.cartList = [... JSON.parse(list).data]
-        return [... this.cartList]
+        if(list){
+            this.cartList = [... JSON.parse(list).data]
+            return [... this.cartList]
+        }
     }
 
     async getCartByID(cid){
@@ -53,10 +55,10 @@ class cart {
 
         if (productIndex !== -1) {
             // existe, sumo 1 a q
-            this.cart.products[productIndex].q++;
+            this.cart.products[productIndex].quantity++;
         } else {
             // no esta en el carrito, lo creo
-            this.cart.products.push({ pid: pid, q: 1 });
+            this.cart.products.push({ pid: pid, quantity: 1 });
         }
 
         await fs.promises.writeFile(this.path, JSON.stringify({ data: this.cartList }));

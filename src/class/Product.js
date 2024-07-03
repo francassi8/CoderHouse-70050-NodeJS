@@ -8,8 +8,10 @@ class product {
 
     async getProductList(){
         const list = await fs.promises.readFile(this.path, 'utf-8')
-        this.productList = [... JSON.parse(list).data]
-        return [... this.productList]
+        if(list){
+            this.productList = [... JSON.parse(list).data]
+            return [... this.productList]
+        }
     }
 
     async getProductByID(pid){
