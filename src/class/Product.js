@@ -11,13 +11,21 @@ class product {
         if(list){
             this.productList = [... JSON.parse(list).data]
             return [... this.productList]
+        }else{
+            throw new Error('No hay productos');
         }
     }
 
     async getProductByID(pid){
         await this.getProductList()
         const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
-        return this.productList.find(product => product.id === productId)
+
+        const productExists = this.productList.some(product => product.id === productId);
+        if (!productExists) {
+            throw new Error('El producto con id ' + productId + ' no existe');
+        }else{
+            return this.productList.find(product => product.id === productId)
+        }        
     }
 
     async addProduct(product){
@@ -42,7 +50,6 @@ class product {
         if (errorMessage)
             throw new Error('Se requieren los siguientes campos: '+errorMessage);
 
-        //obtener ultimo id y sumar 1 unidad
         this.productList = await this.getProductList();
         let newId;
         if (this.productList.length > 0) {
@@ -65,6 +72,12 @@ class product {
     async updateProduct(updatedProduct, pid) {
         this.productList = await this.getProductList();
         const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
+
+        const productExists = this.productList.some(product => product.id === productId);
+        if (!productExists) {
+            throw new Error('El producto con id ' + productId + ' no existe');
+        }
+
         const index = this.productList.findIndex(product => product.id === productId);
         
         if (index !== -1) {
@@ -80,6 +93,12 @@ class product {
     async deleteProduct(pid) {
         this.productList = await this.getProductList();
         const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
+
+        const productExists = this.productList.some(product => product.id === productId);
+        if (!productExists) {
+            throw new Error('El producto con id ' + productId + ' no existe');
+        }
+
         const productsFiltered = this.productList.filter(product => product.id !== productId);
        
         await fs.promises.writeFile(this.path, JSON.stringify({ data: productsFiltered }));

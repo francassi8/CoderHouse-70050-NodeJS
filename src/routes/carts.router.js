@@ -3,7 +3,7 @@ import cartClass from '../class/Cart.js';
 import { __dirname  } from '../utils.js';
 
 const app = Router();
-const cart = new cartClass(__dirname + '/data/Cart.json');
+const cart = new cartClass(__dirname + '/data/Cart.json', __dirname + '/data/Products.json');
 
 app.post('/api/carts/', async (req, res) => {
     try {
@@ -15,13 +15,21 @@ app.post('/api/carts/', async (req, res) => {
 })
 
 app.get('/api/carts/', async (req, res) => {
-    const cartList = await cart.getCartList();
-    res.status(201).json({ resultado: cartList})
+    try {
+        const cartList = await cart.getCartList();
+        res.status(201).json({ resultado: cartList})
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
 })
 
 app.get('/api/carts/:cid', async (req, res) => {
-    const cartFind = await cart.getCartByID(req.params.cid);
-    res.status(201).json({ resultado: cartFind})
+    try {
+        const cartFind = await cart.getCartByID(req.params.cid);
+        res.status(201).json({ resultado: cartFind})
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
+    }
 })
 
 app.post('/api/carts/:cid/product/:pid', async (req, res) => {
