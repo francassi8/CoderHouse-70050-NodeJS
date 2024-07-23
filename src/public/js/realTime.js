@@ -41,7 +41,6 @@ socket.on('realTimeProducts', (data) => {
     const form = document.createElement('form');
     form.id = 'productForm';
 
-        // Add HTML for the form fields
         form.innerHTML = `
             <div style="margin-left: 15px;">
                 <h2>Crear Producto</h2>
@@ -81,7 +80,7 @@ socket.on('realTimeProducts', (data) => {
                 });
     
                 const result = await response.json();
-                alert(result.message);
+                //alert(result.message);
                 form.reset();
             } catch (error) {
                 console.error('Error:', error);
@@ -95,7 +94,6 @@ socket.on('realTimeProducts', (data) => {
         eliminarProducto.innerHTML = ''
 
         const form_eliminar = document.createElement('div');
-        //form_eliminar.id = 'deleteForm';
 
         form_eliminar.innerHTML = `
             <div style="margin-left: 15px;">
@@ -123,7 +121,7 @@ socket.on('realTimeProducts', (data) => {
     
                     if (response.ok) {
                         const result = await response.json();
-                        alert(result.message); // Show success message
+                        //alert(result.message);
     
                         const productItem = document.querySelector(`.productItem[data-id="${productId}"]`);
                         if (productItem) {
