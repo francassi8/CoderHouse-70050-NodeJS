@@ -1,108 +1,83 @@
-import fs from 'node:fs'
+import { productModel } from "../model/product.model.js";
 
-class product {
-    constructor(path){
-        this.path = path;
+class ProductManager {
+    constructor() {
         this.productList = [];
     }
 
-    async getProductList(){
-        const list = await fs.promises.readFile(this.path, 'utf-8')
-        if(list){
-            this.productList = [... JSON.parse(list).data]
-            return [... this.productList]
-        }else{
-            throw new Error('No hay productos');
+    async getProductList() {
+        const list = await productModel.find();
+        if (list.length > 0) {
+            this.productList = list;
+            return this.productList;
+        } else {
+            return [];
         }
     }
 
-    async getProductByID(pid){
-        await this.getProductList()
+    async getProductByID(pid) {
         const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
 
-        const productExists = this.productList.some(product => product.id === productId);
-        if (!productExists) {
+        const product = await productModel.findOne({ id: productId });
+        if (!product) {
             throw new Error('El producto con id ' + productId + ' no existe');
-        }else{
-            return this.productList.find(product => product.id === productId)
+        } else {
+            return product;
         }        
     }
 
-    async addProduct(product){
+    async addProduct(product) {
         let errorMessage = '';
 
         if (!product.title) {
             errorMessage = 'Nombre';
         }
         if (!product.description) {
-            errorMessage = errorMessage + ' Descripcion';
+            errorMessage += ' Descripcion';
         }
         if (!product.price) {
-            errorMessage = errorMessage + ' Precio';
+            errorMessage += ' Precio';
         }
         if (!product.stock) {
-            errorMessage = errorMessage + ' Stock';
+            errorMessage += ' Stock';
         }
         if (!product.category) {
-            errorMessage = errorMessage + ' Categoria';
+            errorMessage += ' Categoria';
         }
 
-        if (errorMessage)
-            throw new Error('Se requieren los siguientes campos: '+errorMessage);
-
-        this.productList = await this.getProductList();
-        let newId;
-        if (this.productList.length > 0) {
-            newId = Math.max(...this.productList.map(product => product.id))+1
-        } else {
-            newId = 1
+        if (errorMessage) {
+            throw new Error('Se requieren los siguientes campos: ' + errorMessage);
         }
 
-        const productWithId = {
-            id: newId,
-            status: true,
-            thumbnails: [],
-            ...product
-         };
+        await product.save();
 
-        this.productList.push(productWithId);
-        await  fs.promises.writeFile(this.path, JSON.stringify({ data: this.productList}))
+        return product;
     }
 
     async updateProduct(updatedProduct, pid) {
-        this.productList = await this.getProductList();
         const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
 
-        const productExists = this.productList.some(product => product.id === productId);
-        if (!productExists) {
+        const updated = await productModel.findOneAndUpdate(
+            { id: productId },
+            { $set: updatedProduct },
+            { new: true }
+        );
+
+        if (!updated) {
             throw new Error('El producto con id ' + productId + ' no existe');
         }
 
-        const index = this.productList.findIndex(product => product.id === productId);
-        
-        if (index !== -1) {
-            this.productList[index] = {
-                ...this.productList[index],
-                ...updatedProduct 
-            };
-        }
-       
-        await fs.promises.writeFile(this.path, JSON.stringify({ data: this.productList }));
+        return updated;
     }
 
     async deleteProduct(pid) {
-        this.productList = await this.getProductList();
-        const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
-
-        const productExists = this.productList.some(product => product.id === productId);
-        if (!productExists) {
-            throw new Error('El producto con id ' + productId + ' no existe');
+        const deleted = await productModel.findOneAndDelete({ _id: pid });
+        if (!deleted) {
+            throw new Error('El producto con id ' + pid + ' no existe');
         }
 
-        const productsFiltered = this.productList.filter(product => product.id !== productId);
-       
-        await fs.promises.writeFile(this.path, JSON.stringify({ data: productsFiltered }));
+        return deleted;
     }
 }
 
-export default product
+export default ProductManager;

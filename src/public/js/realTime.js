@@ -4,14 +4,13 @@ const contenedorListaProductos = document.querySelector('#listaDeProductos')
 
 socket.on('realTimeProducts', (data) => {
 
-    //Lista de Productos
-
     contenedorListaProductos.innerHTML = '<h2>Lista de Productos</h2>'
     data.forEach(producto => {
         const div = document.createElement('div')
-        const idNode = document.createTextNode(`Id: ${producto.id}`);
+        const idNode = document.createTextNode(`Id: ${producto._id}`);
         const titleNode = document.createTextNode(`Title: ${producto.title}`);
         const codeNode = document.createTextNode(`Code: ${producto.code}`);
+        const descriptionNode = document.createTextNode(`Descripcion: ${producto.description}`);
         const priceNode = document.createTextNode(`Price: ${producto.price}`);
         const stockNode = document.createTextNode(`Stock: ${producto.stock}`);
         const statusNode = document.createTextNode(`Status: ${producto.status}`);
@@ -21,6 +20,8 @@ socket.on('realTimeProducts', (data) => {
         div.appendChild(titleNode);
         div.appendChild(document.createElement('br'));
         div.appendChild(codeNode);
+        div.appendChild(document.createElement('br'));
+        div.appendChild(descriptionNode);
         div.appendChild(document.createElement('br'));
         div.appendChild(priceNode);
         div.appendChild(document.createElement('br'));
@@ -32,8 +33,6 @@ socket.on('realTimeProducts', (data) => {
 
         contenedorListaProductos.appendChild(div);
     });
-
-    //agregar Producto
 
     const crearProducto = document.querySelector('#crearProducto')
     crearProducto.innerHTML = ''
@@ -80,15 +79,13 @@ socket.on('realTimeProducts', (data) => {
                 });
     
                 const result = await response.json();
-                //alert(result.message);
+
                 form.reset();
             } catch (error) {
                 console.error('Error:', error);
                 alert('Error al agregar el Producto');
             }
         });
-
-        //eliminar Producto
 
         const eliminarProducto = document.querySelector('#eliminarProducto')
         eliminarProducto.innerHTML = ''
@@ -121,7 +118,6 @@ socket.on('realTimeProducts', (data) => {
     
                     if (response.ok) {
                         const result = await response.json();
-                        //alert(result.message);
     
                         const productItem = document.querySelector(`.productItem[data-id="${productId}"]`);
                         if (productItem) {

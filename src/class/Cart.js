@@ -1,82 +1,63 @@
-import fs from 'node:fs'
-import product from './Product.js';
+import { cartModel } from '../model/cart.model.js';
+import { productModel } from '../model/product.model.js';
 
-class cart {
-    constructor(path, productPath){
-         if (typeof path !== 'string' || typeof productPath !== 'string') {
-             throw new Error('The "path" argument must be a string');
-         }
-        this.path = path;
+class Cart {
+    constructor() {
         this.cartList = [];
-        this.productInstance = new product(productPath);
     }
 
-    async getCartList(){
-        const list = await fs.promises.readFile(this.path, 'utf-8')
-        if(list){
-            this.cartList = [... JSON.parse(list).data]
-            return [... this.cartList]
-        }else{
-            throw new Error('No hay Carritos creados');
+    async getCartList() {
+        try {
+            this.cartList = await cartModel.find().populate('products.pid');
+            return this.cartList;
+        } catch (error) {
+            throw new Error('No hay carritos creados: ' + error.message);
         }
     }
 
-    async getCartByID(cid){
-        await this.getCartList()
-        const cartID = typeof cid === 'string' ? parseInt(cid, 10) : cid;
-
-        const cartExists = this.cartList.some(cart => cart.id === cartID);
-        if (!cartExists) {
-            throw new Error('El carrito con id ' + cid + ' no existe');
-        }else{
-            return this.cartList.find(cart => cart.id === cartID)
-        }        
-
+    async getCartByID(cid) {
+        try {
+            const cart = await cartModel.findById(cid).populate('products.pid');
+            if (!cart) {
+                throw new Error('El carrito con id ' + cid + ' no existe');
+            }
+            return cart;
+        } catch (error) {
+            throw new Error('Error al obtener el carrito: ' + error.message);
+        }
     }
 
-    async createCart(){
-        this.cartList = await this.getCartList();
-        let newId;
-
-        if (this.cartList.length > 0) {
-            newId = Math.max(...this.cartList.map(cart => cart.id))+1
-        } else {
-            newId = 1
+    async createCart() {
+        try {
+            const newCart = new cartModel({ products: [] });
+            await newCart.save();
+            return newCart;
+        } catch (error) {
+            throw new Error('Error al crear el carrito: ' + error.message);
         }
-    
-        const createdCart = {
-            id: newId,
-            products: [],
-         };
-
-        this.cartList.push(createdCart);
-        await  fs.promises.writeFile(this.path, JSON.stringify({ data: this.cartList}))
     }
 
     async addProductToCart(pid, cid) {
-        this.cart = await this.getCartByID(cid);
+        try {
+            const cart = await this.getCartByID(cid);
+            const product = await productModel.findById(pid);
+            if (!product) {
+                throw new Error('El producto con id ' + pid + ' no existe');
+            }
 
-        if (!this.cart) {
-            throw new Error('el carrito '+cid+' no existe');
+            const productIndex = cart.products.findIndex(item => item.pid.toString() === pid);
+            if (productIndex !== -1) {
+                cart.products[productIndex].quantity++;
+            } else {
+                cart.products.push({ pid: pid, quantity: 1 });
+            }
+
+            await cart.save();
+            return cart;
+        } catch (error) {
+            throw new Error('Error al añadir el producto al carrito: ' + error.message);
         }
-
-        const product = await this.productInstance.getProductByID(pid);
-
-        if (!product) {
-            throw new Error('el producto '+pid+' no existe')
-        }
-
-        const productIndex = this.cart.products.findIndex(product => product.pid === pid);
-
-        if (productIndex !== -1) {
-            this.cart.products[productIndex].quantity++;
-        } else {
-            this.cart.products.push({ pid: pid, quantity: 1 });
-        }
-
-        await fs.promises.writeFile(this.path, JSON.stringify({ data: this.cartList }));
     }
-
 }
 
-export default cart
+export default Cart;

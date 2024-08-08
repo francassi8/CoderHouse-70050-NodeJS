@@ -7,6 +7,7 @@ import HomeRouters from './routes/home.router.js'
 import RealTimeRouters from './routes/realtimeproducts.router.js'
 import { Server } from 'socket.io';
 import productClass from './class/Product.js'
+import mongoose from 'mongoose'
 
 const app = express();
 export const product = new productClass(__dirname + '/data/products.json')
@@ -27,6 +28,8 @@ app.use('/realTime',RealTimeRouters)
 const httpServer = app.listen(8085, () => {
     console.log('Servidor Conectado')
 })
+
+mongoose.connect('mongodb+srv://francocassi8:mpWUJxXtmGFzsOiO@coderhousedb.msd69k1.mongodb.net/?retryWrites=true&w=majority&appName=CoderhouseDB', { dbName: 'Supermarket' }).then(() => { console.log('Lista la BD')})
 
 const socketServer = new Server(httpServer)
 

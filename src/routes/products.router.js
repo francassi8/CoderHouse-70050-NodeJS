@@ -1,24 +1,24 @@
 import { Router } from "express";
-import productClass from '../class/Product.js';
-import { __dirname  } from '../utils.js';
+import { productModel } from "../model/product.model.js";
 
 const app = Router();
 
-const product = new productClass(__dirname + '/data/Products.json');
-
 app.get('/api/products/', async (req, res) => {
     try {
-        const ProductList = await product.getProductList();
-        res.status(201).json({ resultado: ProductList})
+        const productList = await productModel.find();
+        res.status(200).json({ resultado: productList });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-})
+});
 
 app.get('/api/products/:pid', async (req, res) => {
     try {
-        const productFind = await product.getProductByID(req.params.pid)
-        res.status(201).json({ result : productFind })
+        const productFind = await productModel.findById(req.params.pid);
+        if (!productFind) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+        res.status(200).json({ result: productFind });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -26,32 +26,39 @@ app.get('/api/products/:pid', async (req, res) => {
 
 app.post('/api/products/', async (req, res) => {
     try {
-        const newProduct = req.body;
-        await product.addProduct(newProduct);
-        res.status(201).json({ message: 'Añadido!'})
+        const newProduct = new productModel(req.body);
+        await newProduct.save();
+        res.status(201).json({ message: 'Producto añadido!', result: newProduct });
     } catch (error) {
-        //console.error('Error:', error);
-        return res.status(500).json({ error: 'Falla al actualizar el producto. Error:'+ error.message });
+        return res.status(500).json({ error: 'Falla al añadir el producto. Error: ' + error.message });
     }
 });
 
 app.put('/api/products/:pid', async (req, res) => {
     try {
-        await product.updateProduct(req.body,req.params.pid);
-        return res.status(200).json({ message: 'Item Actualizado!' });
+        const updatedProduct = await productModel.findByIdAndUpdate(
+            req.params.pid, 
+            req.body, 
+            { new: true, runValidators: true }
+        );
+        if (!updatedProduct) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+        return res.status(200).json({ message: 'Producto actualizado!', result: updatedProduct });
     } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ error: 'Falla al actualizar el producto. '+ error.message });
+        return res.status(500).json({ error: 'Falla al actualizar el producto. Error: ' + error.message });
     }
 });
 
 app.delete('/api/products/:pid', async (req, res) => {
     try {
-        await product.deleteProduct(req.params.pid);
-        return res.status(200).json({ message: 'Item Eliminado!' });
+        const deletedProduct = await productModel.findByIdAndDelete(req.params.pid);
+        if (!deletedProduct) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+        return res.status(200).json({ message: 'Producto eliminado!' });
     } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ error: 'Falla al eliminar el producto. '+ error.message });
+        return res.status(500).json({ error: 'Falla al eliminar el producto. Error: ' + error.message });
     }
 });
 
