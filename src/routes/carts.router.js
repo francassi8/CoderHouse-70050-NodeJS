@@ -41,4 +41,13 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     }
 })
 
+app.delete('/api/carts/:cid/product/:pid', async (req, res) => {
+    try {
+        await cart.removeProductFromCart(req.params.pid,req.params.cid);
+        res.status(201).json({ message: 'item eliminado del carrito!'})
+    } catch (error) {
+        return res.status(500).json({ error: 'Falla al eliminar producto. Error: '+error.message});
+    }
+})
+
 export default app;
