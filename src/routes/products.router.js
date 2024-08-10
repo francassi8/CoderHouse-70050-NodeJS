@@ -3,20 +3,46 @@ import { productModel } from "../model/product.model.js";
 
 const app = Router();
 
-app.get('/api/products/', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
-        const productList = await productModel.find();
-        res.status(200).json({ resultado: productList });
+        const { limit = 10, page = 1, sort = '', ...query } = req.query;
+        const sortManager = {
+            'asc' : 1,
+            'desc' : -1
+        };
+
+        const filter = {};
+
+        for (const [key, value] of Object.entries(query)) {
+            if (key in productModel.schema.paths) {
+                if (typeof value === 'string') {
+                    filter[key] = { $regex: value, $options: 'i' };
+                } else {
+                    filter[key] = value;
+                }
+            }
+        }
+
+        const productList = await productModel.paginate(
+            filter,
+            {
+                limit: parseInt(limit),
+                page: parseInt(page),
+                ...(sort && { sort: { price: sortManager[sort] } })
+            }
+        );
+
+        res.status(200).json({ status: "success", resultado: productList });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
 });
 
-app.get('/api/products/:pid', async (req, res) => {
+app.get('/:pid', async (req, res) => {
     try {
         const productFind = await productModel.findById(req.params.pid);
         if (!productFind) {
-            return res.status(404).json({ error: 'Producto no encontrado' });
+            return res.status(404).json({ status: "error", error: 'Producto no encontrado' });
         }
         res.status(200).json({ result: productFind });
     } catch (error) {
@@ -24,7 +50,7 @@ app.get('/api/products/:pid', async (req, res) => {
     }
 })
 
-app.post('/api/products/', async (req, res) => {
+app.post('/', async (req, res) => {
     try {
         const newProduct = new productModel(req.body);
         await newProduct.save();
@@ -34,7 +60,7 @@ app.post('/api/products/', async (req, res) => {
     }
 });
 
-app.put('/api/products/:pid', async (req, res) => {
+app.put('/:pid', async (req, res) => {
     try {
         const updatedProduct = await productModel.findByIdAndUpdate(
             req.params.pid, 
@@ -50,7 +76,7 @@ app.put('/api/products/:pid', async (req, res) => {
     }
 });
 
-app.delete('/api/products/:pid', async (req, res) => {
+app.delete('/:pid', async (req, res) => {
     try {
         const deletedProduct = await productModel.findByIdAndDelete(req.params.pid);
         if (!deletedProduct) {

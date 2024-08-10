@@ -5,7 +5,7 @@ import { __dirname  } from '../utils.js';
 const app = Router();
 const cart = new cartClass(__dirname + '/data/Cart.json', __dirname + '/data/Products.json');
 
-app.post('/api/carts/', async (req, res) => {
+app.post('/', async (req, res) => {
     try {
         await cart.createCart();
         res.status(201).json({ message: 'Carrito Creado!'})
@@ -14,7 +14,7 @@ app.post('/api/carts/', async (req, res) => {
     }
 })
 
-app.get('/api/carts/', async (req, res) => {
+app.get('/', async (req, res) => {
     try {
         const cartList = await cart.getCartList();
         res.status(201).json({ resultado: cartList})
@@ -23,7 +23,7 @@ app.get('/api/carts/', async (req, res) => {
     }
 })
 
-app.get('/api/carts/:cid', async (req, res) => {
+app.get('/:cid', async (req, res) => {
     try {
         const cartFind = await cart.getCartByID(req.params.cid);
         res.status(201).json({ resultado: cartFind})
@@ -32,7 +32,7 @@ app.get('/api/carts/:cid', async (req, res) => {
     }
 })
 
-app.post('/api/carts/:cid/product/:pid', async (req, res) => {
+app.post('/:cid/product/:pid', async (req, res) => {
     try {
         await cart.addProductToCart(req.params.pid,req.params.cid);
         res.status(201).json({ message: 'item agregado a carrito!'})
@@ -41,7 +41,7 @@ app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     }
 })
 
-app.delete('/api/carts/:cid/product/:pid', async (req, res) => {
+app.delete('/:cid/product/:pid', async (req, res) => {
     try {
         await cart.removeProductFromCart(req.params.pid,req.params.cid);
         res.status(201).json({ message: 'item eliminado del carrito!'})

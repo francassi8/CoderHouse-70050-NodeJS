@@ -19,8 +19,8 @@ app.set('view engine', 'handlebars');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(express.static(__dirname + '/public'));
-app.use('/',cartRouter);
-app.use('/',productRouter);
+app.use('/api/carts/',cartRouter);
+app.use('/api/products/',productRouter);
 app.use('/home',HomeRouters)
 app.use('/realTime',RealTimeRouters)
 

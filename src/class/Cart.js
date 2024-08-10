@@ -65,6 +65,13 @@ class Cart {
     async removeProductFromCart(pid, cid) {
         try {
             const cart = await this.getCartByID(cid);
+
+            if (!pid) {
+                cart.products = [];
+                await cart.save();
+                return cart;
+            }
+
             const product = await productModel.findById(pid);
             if (!product) {
                 throw new Error('El producto con id ' + pid + ' no existe');
