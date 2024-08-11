@@ -26,11 +26,26 @@ app.get('/', async (req, res) => {
 app.get('/:cid', async (req, res) => {
     try {
         const cartFind = await cart.getCartByID(req.params.cid);
-        res.status(201).json({ resultado: cartFind})
+        if (!cart) {
+            return res.status(404).json({ status: "error", message: "carrito no encontrado" });
+        }
+        res.status(201).json({ status: "success", resultado: cartFind})
     } catch (error) {
         return res.status(500).json({ error: error.message })
     }
 })
+
+app.get('/:cid', async (req, res) => {
+    try {
+        const cart = await cartModel.findById(req.params.cid).populate('products.pid');
+        if (!cart) {
+            return res.status(404).json({ status: "error", message: "Cart not found" });
+        }
+        res.status(200).json({ status: "success", cart });
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
 
 app.post('/:cid/product/:pid', async (req, res) => {
     try {

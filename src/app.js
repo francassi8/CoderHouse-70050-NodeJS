@@ -5,6 +5,7 @@ import productRouter from './routes/products.router.js'
 import {__dirname} from './utils.js'
 import HomeRouters from './routes/home.router.js'
 import RealTimeRouters from './routes/realtimeproducts.router.js'
+import productsOfCart from './routes/productsOfCart.router.js'
 import { Server } from 'socket.io';
 import productClass from './class/Product.js'
 import mongoose from 'mongoose'
@@ -23,6 +24,7 @@ app.use('/api/carts/',cartRouter);
 app.use('/api/products/',productRouter);
 app.use('/home',HomeRouters)
 app.use('/realTime',RealTimeRouters)
+app.use('/productsOfCart',productsOfCart)
 
 
 const httpServer = app.listen(8085, () => {
