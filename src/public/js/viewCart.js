@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cartHTML += `<li>
                 <strong>title:</strong> ${product.pid.title} <br/>
                 <strong>Quantity:</strong> ${product.quantity} <br/>
-                <strong>Price:</strong> $${product.pid.price}
+                <strong>Price:</strong> $${product.pid.price} <br/>
+                <strong>Quantity:</strong> ${product.quantity}
             </li><br>`;
         });
         cartHTML += `</ul>`;
