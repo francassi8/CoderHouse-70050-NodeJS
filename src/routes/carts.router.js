@@ -1,5 +1,6 @@
 import { Router } from "express";
 import cartClass from '../class/Cart.js';
+import { cartModel } from '../model/cart.model.js';
 import { __dirname  } from '../utils.js';
 
 const app = Router();
@@ -16,8 +17,33 @@ app.post('/', async (req, res) => {
 
 app.get('/', async (req, res) => {
     try {
-        const cartList = await cart.getCartList();
-        res.status(201).json({ resultado: cartList})
+        const { limit = 10, page = 1, sort = '', ...query } = req.query;
+        const sortManager = {
+            'asc' : 1,
+            'desc' : -1
+        };
+
+        const filter = {};
+
+        for (const [key, value] of Object.entries(query)) {
+            if (key in cartModel.schema.paths) {
+                if (typeof value === 'string') {
+                    filter[key] = { $regex: value, $options: 'i' };
+                } else {
+                    filter[key] = value;
+                }
+            }
+        }
+
+        const cartList = await cartModel.paginate(
+            filter,
+            {
+                limit: parseInt(limit),
+                page: parseInt(page)
+            }
+        );
+
+        res.status(200).json({ status: "success", resultado: cartList });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -50,9 +76,9 @@ app.get('/:cid', async (req, res) => {
 app.post('/:cid/product/:pid', async (req, res) => {
     try {
         await cart.addProductToCart(req.params.pid,req.params.cid);
-        res.status(201).json({ message: 'item agregado a carrito!'})
+        res.status(201).json({ status: "success", message: 'item agregado a carrito!'})
     } catch (error) {
-        return res.status(500).json({ error: 'Falla al agregar producto. Error: '+error.message});
+        return res.status(500).json({ status: "error", error: 'Falla al agregar producto. Error: '+error.message});
     }
 })
 

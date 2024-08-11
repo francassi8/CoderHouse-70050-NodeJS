@@ -15,6 +15,31 @@ socket.on('realTimeProducts', (data) => {
         const stockNode = document.createTextNode(`Stock: ${producto.stock}`);
         const statusNode = document.createTextNode(`Status: ${producto.status}`);
 
+        const addToCartButton = document.createElement('button');
+        addToCartButton.textContent = 'Agregar al carrito';
+        addToCartButton.onclick = () => {
+            const cartId = "66b54edf620854cc46dfe105";
+            const productId = producto._id;
+    
+            fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Producto agregado al carrito!');
+                } else {
+                    alert('No se pudo agregar el producto al carrito: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        };
+
         div.appendChild(idNode);
         div.appendChild(document.createElement('br'));
         div.appendChild(titleNode);
@@ -28,6 +53,8 @@ socket.on('realTimeProducts', (data) => {
         div.appendChild(stockNode);
         div.appendChild(document.createElement('br'));
         div.appendChild(statusNode);
+        div.appendChild(document.createElement('br'));
+        div.appendChild(addToCartButton);
         div.appendChild(document.createElement('br'));
         div.appendChild(document.createElement('br'));
 
