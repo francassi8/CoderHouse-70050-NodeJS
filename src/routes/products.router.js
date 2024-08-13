@@ -28,7 +28,8 @@ app.get('/', async (req, res) => {
             {
                 limit: parseInt(limit),
                 page: parseInt(page),
-                ...(sort && { sort: { price: sortManager[sort] } })
+                ...(sort && { sort: { price: sortManager[sort] } }),
+                customLabels: { docs: 'payload'}
             }
         );
 
