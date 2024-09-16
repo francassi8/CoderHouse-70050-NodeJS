@@ -1,30 +1,35 @@
+import mongoose from 'mongoose'
+import { AppInit } from './init/initialConfig.js';
+import { ROUTE_PATH } from './constants/routesPath.js'
 import express from 'express'
 import handlebars from 'express-handlebars'
+import { Server } from 'socket.io';
+import {__dirname} from './utils.js'
 import cartRouter from './routes/carts.router.js'
 import productRouter from './routes/products.router.js'
-import {__dirname} from './utils.js'
 import HomeRouters from './routes/home.router.js'
 import RealTimeRouters from './routes/realtimeproducts.router.js'
 import productsOfCart from './routes/productsOfCart.router.js'
-import { Server } from 'socket.io';
 import productClass from './class/Product.js'
-import mongoose from 'mongoose'
+import loginRouter from './routes/login.router.js'
 
 const app = express();
+AppInit(app);
+
+
+
 export const product = new productClass(__dirname + '/data/products.json')
 
 app.engine('handlebars', handlebars.engine());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'handlebars');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
-app.use(express.static(__dirname + '/public'));
-app.use('/api/carts/',cartRouter);
-app.use('/api/products/',productRouter);
-app.use('/home',HomeRouters)
-app.use('/realTime',RealTimeRouters)
-app.use('/productsOfCart',productsOfCart)
+app.use(ROUTE_PATH.api_carts, cartRouter);
+app.use(ROUTE_PATH.api_products, productRouter);
+app.use(ROUTE_PATH.api_session, loginRouter);
+app.use('/home',HomeRouters);
+app.use('/realTime',RealTimeRouters);
+app.use('/productsOfCart',productsOfCart);
 
 
 const httpServer = app.listen(8085, () => {
