@@ -2,11 +2,12 @@ import { Router } from "express";
 import cartClass from '../class/Cart.js';
 import { cartModel } from '../model/cart.model.js';
 import { __dirname  } from '../utils.js';
+import { invokePassport } from "../middlewares/handleErrors.js";
 
 const app = Router();
 const cart = new cartClass(__dirname + '/data/Cart.json', __dirname + '/data/Products.json');
 
-app.post('/', async (req, res) => {
+app.post('/', invokePassport('jwt'), async (req, res) => {
     try {
         await cart.createCart();
         res.status(201).json({ message: 'Carrito Creado!'})
@@ -15,7 +16,7 @@ app.post('/', async (req, res) => {
     }
 })
 
-app.get('/', async (req, res) => {
+app.get('/', invokePassport('jwt'), async (req, res) => {
     try {
         const { limit = 10, page = 1, sort = '', ...query } = req.query;
         const sortManager = {
@@ -49,7 +50,7 @@ app.get('/', async (req, res) => {
     }
 })
 
-app.get('/:cid', async (req, res) => {
+app.get('/:cid', invokePassport('jwt'), async (req, res) => {
     try {
         const cartFind = await cart.getCartByID(req.params.cid);
         if (!cart) {
@@ -61,7 +62,7 @@ app.get('/:cid', async (req, res) => {
     }
 })
 
-app.get('/:cid', async (req, res) => {
+app.get('/:cid', invokePassport('jwt'), async (req, res) => {
     try {
         const cart = await cartModel.findById(req.params.cid).populate('products.pid');
         if (!cart) {
@@ -73,7 +74,7 @@ app.get('/:cid', async (req, res) => {
     }
 });
 
-app.post('/:cid/product/:pid', async (req, res) => {
+app.post('/:cid/product/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         await cart.addProductToCart(req.params.pid,req.params.cid);
         res.status(201).json({ status: "success", message: 'item agregado a carrito!'})
@@ -82,7 +83,7 @@ app.post('/:cid/product/:pid', async (req, res) => {
     }
 })
 
-app.delete('/:cid/product/:pid', async (req, res) => {
+app.delete('/:cid/product/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         await cart.removeProductFromCart(req.params.pid,req.params.cid);
         res.status(201).json({ message: 'item eliminado del carrito!'})

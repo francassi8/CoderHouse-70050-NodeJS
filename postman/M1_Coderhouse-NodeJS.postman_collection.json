@@ -1,0 +1,247 @@
+{
+	"info": {
+		"_postman_id": "442d1950-4db5-47d8-bdfe-7270ed1c282a",
+		"name": "M1_Coderhouse-NodeJS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "22503229"
+	},
+	"item": [
+		{
+			"name": "listaDeProductos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"url": "localhost:8085/api/products/"
+			},
+			"response": []
+		},
+		{
+			"name": "verProducto",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"url": "localhost:8085/api/products/10"
+			},
+			"response": []
+		},
+		{
+			"name": "crearProducto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/products/"
+			},
+			"response": []
+		},
+		{
+			"name": "actualizarProducto",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"code\": 3010,\n        \"price\": 160,\n        \"stock\": 1\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/products/10"
+			},
+			"response": []
+		},
+		{
+			"name": "EliminarProducto",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"Medias\",\n        \"description\": \"Medias de verano\",\n        \"code\": 554,\n        \"price\": 5,\n        \"stock\": 45,\n        \"category\": \"Verano\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/products/1"
+			},
+			"response": []
+		},
+		{
+			"name": "CrearCarrito",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/carts/"
+			},
+			"response": []
+		},
+		{
+			"name": "listadoDeCarritos",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/carts/"
+			},
+			"response": []
+		},
+		{
+			"name": "verCarrito",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/carts/3"
+			},
+			"response": []
+		},
+		{
+			"name": "agregarProductoaCarrito",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"name": "Content-Type",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/carts/3/product/2"
+			},
+			"response": []
+		},
+		{
+			"name": "eliminarrProductoDeCarrito",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8085/api/carts/3/product/2"
+			},
+			"response": []
+		}
+	]
+}

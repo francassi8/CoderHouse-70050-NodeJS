@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { productModel } from "../model/product.model.js";
+import { invokePassport } from "../middlewares/handleErrors.js";
 
 const app = Router();
 
-app.get('/', async (req, res) => {
+app.get('/', invokePassport('jwt'), async (req, res) => {
     try {
         const { limit = 10, page = 1, sort = '', ...query } = req.query;
         const sortManager = {
@@ -39,7 +40,7 @@ app.get('/', async (req, res) => {
     }
 });
 
-app.get('/:pid', async (req, res) => {
+app.get('/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         const productFind = await productModel.findById(req.params.pid);
         if (!productFind) {
@@ -51,7 +52,7 @@ app.get('/:pid', async (req, res) => {
     }
 })
 
-app.post('/', async (req, res) => {
+app.post('/', invokePassport('jwt'), async (req, res) => {
     try {
         const newProduct = new productModel(req.body);
         await newProduct.save();
@@ -61,7 +62,7 @@ app.post('/', async (req, res) => {
     }
 });
 
-app.put('/:pid', async (req, res) => {
+app.put('/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         const updatedProduct = await productModel.findByIdAndUpdate(
             req.params.pid, 
@@ -77,7 +78,7 @@ app.put('/:pid', async (req, res) => {
     }
 });
 
-app.delete('/:pid', async (req, res) => {
+app.delete('/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         const deletedProduct = await productModel.findByIdAndDelete(req.params.pid);
         if (!deletedProduct) {
