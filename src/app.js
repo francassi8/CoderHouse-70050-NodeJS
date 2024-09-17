@@ -9,7 +9,7 @@ AppInit(app);
 
 export const product = new productClass(__dirname + '/data/products.json')
 
-const httpServer = app.listen(8085, () => {
+const httpServer = app.listen(8080, () => {
     console.log('Servidor Conectado')
 })
 
