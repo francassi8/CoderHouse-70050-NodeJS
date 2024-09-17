@@ -8,10 +8,7 @@ const productSchema = new Schema({
     price: Number,
     stock: Number,
     category: String,
-    status: {
-        type: Boolean,
-        default: true
-    }
+    status: {type: Boolean, default: true}
 })
 productSchema.plugin(mongoosePaginate);
 export const productModel = model('products', productSchema);

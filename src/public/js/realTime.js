@@ -95,7 +95,6 @@ socket.on('realTimeProducts', (data) => {
             formData.forEach((value, key) => {
                 data[key] = value;
             });
-            console.log(JSON.stringify(data))
             try {
                 const response = await fetch('/api/products/', {
                     method: 'POST',

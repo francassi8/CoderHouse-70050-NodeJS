@@ -5,10 +5,7 @@ const userCollection = 'user';
 const userSchema = new Schema({
     nombre: String,
     apellido: String,
-    email: {
-        type: String,
-        unique: true
-    },
+    email: {type: String, unique: true},
     edad: Number,
     password: String,
     cart: { type: Schema.Types.ObjectId, ref: 'Cart'},

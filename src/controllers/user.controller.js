@@ -11,8 +11,7 @@ export const  login = async (req, res) => {
         
         if(isValidPassword(userFound, password)){           
             const token = generadorToken({ email: userFound.email, nombre: userFound.nombre, rol: userFound.role })
-            console.log(token) 
-            return res.status(200).cookie('currentUser', token,{ maxAge: 60000, signed: true, httpOnly:true }).json({message:'login OK', token})
+            return res.status(200).cookie('currentUser', token,{ maxAge: 120000, signed: true, httpOnly:true }).json({message:'login OK', token})
         }
         
         return res.status(200).json({message: 'error login'})

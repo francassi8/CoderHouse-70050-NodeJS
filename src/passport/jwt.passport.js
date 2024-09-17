@@ -15,7 +15,6 @@ const initializePassport = () => {
             if(!userFound){
                 return done(null, false)
             }
-
             return done(null, userFound)
         }catch (e){
             return done(e)
