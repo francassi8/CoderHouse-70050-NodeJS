@@ -1,5 +1,4 @@
 import { productsRepo, cartsRepo } from '../../repositories/index.js';
-import mongoose from 'mongoose';
 
 export default class CartDao {
     constructor() {
@@ -48,7 +47,7 @@ export default class CartDao {
     
     removeProductFromCart = async(pid, cid) => {
         try {
-            const cart = await this.getById(cid);
+            const cart = await cartsRepo.getById(cid);
 
             if (!pid) {
                 cart.products = [];
@@ -61,8 +60,7 @@ export default class CartDao {
                 throw new Error('El producto con id ' + pid + ' no existe');
             }
 
-            const objectIdPid = new mongoose.Types.ObjectId(pid);
-            const productIndex = cart.products.findIndex(item => item.pid.equals(objectIdPid));
+            const productIndex = cart.products.findIndex(item => item.pid.equals(pid));
     
             if (productIndex !== -1) {
                 if (cart.products[productIndex].quantity > 1) {
@@ -77,7 +75,7 @@ export default class CartDao {
             await cart.save();
             return cart;
         } catch (error) {
-            throw new Error('Error al añadir el producto al carrito: ' + error.message);
+            throw new Error('Error al eliminar el producto del carrito: ' + error.message);
         }
     }
 }

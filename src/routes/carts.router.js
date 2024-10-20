@@ -1,5 +1,6 @@
 import { Router } from "express";
 import cartDao from '../dao/class/Cart.dao.js';
+import { ticketDao } from '../dao/class/Ticket.dao.js';
 import { cartModel } from '../dao/model/cart.model.js';
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { soloUser } from "../middlewares/authorization.js";
@@ -84,5 +85,40 @@ app.delete('/:cid/product/:pid', invokePassport('jwt'), async (req, res) => {
         return res.status(500).json({ error: 'Falla al eliminar producto. Error: '+error.message});
     }
 })
+
+app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => {
+    try {
+      const { cid } = req.params;
+      const cart = await cartDaoInstance.getById(cid);
+      if (!cart) {
+        return res.status(500).json({ error: 'Carrito no encontrado' });
+      }
+      const products = await ticketDao.getProductsInCart(cart);
+      let processedProducts = [];
+      let unprocessedProducts = [];
+      for (const product of products) {
+        if (product.stock >= product.quantity) {
+          const updatedProduct = await productsRepo.updateStock(product.pid, -product.quantity);
+          processedProducts.push({
+            pid: product.pid,
+            quantity: product.quantity,
+            name: product.name,
+            price: product.price,
+            stock: updatedProduct.stock,
+          });
+        } else {
+          unprocessedProducts.push(product);
+        }
+      }
+      if (processedProducts.length > 0) {
+        const ticket = await ticketDao.createTicket(cart, processedProducts);
+        return res.status(201).json({ status: 'success', message: 'Purchase completed', ticket });
+      } else {
+        return res.status(200).json({ status: 'success', message: 'Purchase incomplete', unprocessedProducts });
+      }
+    } catch (error) {
+      return res.status(500).json({ status: 'error', message: error.message });
+    }
+  });
 
 export default app;
