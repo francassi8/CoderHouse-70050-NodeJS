@@ -1,77 +1,81 @@
-import { cartModel } from '../dao/model/cart.model.js';
-import mongoose from 'mongoose';
+import CartDao from '../dao/class/Cart.dao.js';
+import productDao from '../dao/class/Product.dao.js';
 
-class CartRepository {
-    async getAll(filter, limit, page, sort) {
+export default class CartRepository {
+    constructor() {
+        this.CartDao = new CartDao();
+    }
+
+    getCartList = async () => {
         try {
-            const carts = await cartModel.find(filter)
-                .limit(limit)
-                .skip((page - 1) * limit)
-                .sort(sort)
-                .populate('products.pid');
-            return carts;
+            const cartList = await this.CartDao.getAll();
+            return cartList;
         } catch (error) {
-            throw new Error(`Error al obtener los carritos: ${error.message}`);
+            throw new Error('No hay carritos creados: ' + error.message);
         }
     }
 
-    async getById(id) {
+    getCartByID = async(cid) => {
         try {
-            const cart = await cartModel.findById(id).populate('products.pid');
+            const cart = await this.CartDao.getById(cid);
+            if (!cart) {
+                throw new Error('El carrito con id ' + cid + ' no existe');
+            }
             return cart;
         } catch (error) {
-            throw new Error(`Error al obtener el carrito: ${error.message}`);
+            throw new Error('Error al obtener el carrito: ' + error.message);
         }
     }
 
-    async add(cart) {
+    createCart = async() => {
         try {
-            const newCart = await cartModel.create(cart);
+            const newCart = await this.CartDao.add();
             return newCart;
         } catch (error) {
-            throw new Error(`Error al crear el carrito: ${error.message}`);
+            throw new Error('Error al crear el carrito: ' + error.message);
         }
     }
 
-    async addProductToCart(cartId, productId) {
+    addProductToCart = async(pid, cid) => {
         try {
-            const objectIdPid = new mongoose.Types.ObjectId(productId);
-            const updatedCart = await cartModel.updateOne(
-                { _id: cartId, "products.pid": objectIdPid },
-                { $inc: { "products.$.quantity": 1 } }
-            );
-
-            if (updatedCart.nModified === 0) {
-                await cartModel.updateOne(
-                    { _id: cartId },
-                    { $addToSet: { products: { pid: objectIdPid, quantity: 1 } } }
-                );
-            }
-
-            const cart = await cartModel.findById(cartId);
-            return cart;
-        } catch (error) {
-            throw new Error(`Error al agregar el producto al carrito: ${error.message}`);
-        }
-    }
-
-    async update(id, cart) {
-        try {
-            const updatedCart = await cartModel.findByIdAndUpdate(id, cart, { new: true });
+            const updatedCart = await this.CartDao.addProductToCart(cid, pid);
             return updatedCart;
         } catch (error) {
-            throw new Error(`Error al actualizar el carrito: ${error.message}`);
+            throw new Error(`Error al añadir el producto al carrito: ${error.message}`);
         }
     }
-
-    async delete(id) {
+    
+    removeProductFromCart = async(pid, cid) => {
         try {
-            const deletedCart = await cartModel.findByIdAndDelete(id);
-            return deletedCart;
+            const cart = await this.CartDao.getById(cid);
+
+            if (!pid) {
+                cart.products = [];
+                await cart.save();
+                return cart;
+            }
+
+            const product = await productDao.getById(pid);
+            if (!product) {
+                throw new Error('El producto con id ' + pid + ' no existe');
+            }
+
+            const productIndex = cart.products.findIndex(item => item.pid.equals(pid));
+    
+            if (productIndex !== -1) {
+                if (cart.products[productIndex].quantity > 1) {
+                    cart.products[productIndex].quantity--;
+                } else {
+                    cart.products.splice(productIndex, 1);
+                }
+            } else {
+                throw new Error('El producto con id ' + pid + ' no está en el carrito');
+            }
+
+            await cart.save();
+            return cart;
         } catch (error) {
-            throw new Error(`Error al eliminar el carrito: ${error.message}`);
+            throw new Error('Error al eliminar el producto del carrito: ' + error.message);
         }
     }
 }
-
-export default CartRepository;

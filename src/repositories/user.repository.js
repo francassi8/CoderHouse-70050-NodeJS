@@ -1,8 +1,8 @@
-import { UserModel } from "../model/user.model.js";
-import { createHash, generadorToken, isValidPassword } from "../../utils.js";
-import { UserDTO } from '../../dto/user.dto.js';
+import { UserModel } from "../dao/model/user.model.js";
+import { createHash, generadorToken, isValidPassword } from "../utils.js";
+import { UserDTO } from '../dto/user.dto.js';
 
-export const  login = async (req, res) => {
+export const login = async (req, res) => {
     try{
         const { password, email } = req.body; 
 

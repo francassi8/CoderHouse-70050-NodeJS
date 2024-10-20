@@ -1,81 +1,82 @@
-import { productsRepo, cartsRepo } from '../../repositories/index.js';
+import { cartModel } from '../model/cart.model.js';
+import mongoose from 'mongoose';
 
 export default class CartDao {
-    constructor() {
-        this.cartsRepo = cartsRepo;
-    }
-
-    getCartList = async () => {
+    async getAll(filter, limit, page, sort) {
         try {
-            this.cartList = await cartsRepo.getAll();
-            return this.cartList;
+            const carts = await cartModel.find(filter)
+                .limit(limit)
+                .skip((page - 1) * limit)
+                .sort(sort)
+                .populate('products.pid');
+            return carts;
         } catch (error) {
-            throw new Error('No hay carritos creados: ' + error.message);
+            throw new Error(`Error al obtener los carritos: ${error.message}`);
         }
     }
 
-    getCartByID = async(cid) => {
+    async getById(id) {
         try {
-            const cart = await cartsRepo.getById(cid);
-            if (!cart) {
-                throw new Error('El carrito con id ' + cid + ' no existe');
-            }
+            const cart = await cartModel.findById(id).populate('products.pid');
             return cart;
         } catch (error) {
-            throw new Error('Error al obtener el carrito: ' + error.message);
+            throw new Error(`Error al obtener el carrito: ${error.message}`);
         }
     }
 
-    createCart = async() => {
+    async add(cart) {
         try {
-            const newCart = new cartsRepo.add();
-            await newCart.save();
+            const newCart = await cartModel.create(cart);
             return newCart;
         } catch (error) {
-            throw new Error('Error al crear el carrito: ' + error.message);
+            throw new Error(`Error al crear el carrito: ${error.message}`);
         }
     }
 
-    addProductToCart = async(pid, cid) => {
+    async addProductToCart(cartId, productId) {
         try {
-            const updatedCart = await this.cartRepository.addProductToCart(cid, pid);
+          const objectIdPid = new mongoose.Types.ObjectId(productId);
+          const cart = await cartModel.findOneAndUpdate(
+            { _id: cartId },
+            {
+              $inc: {
+                "products.$[product].quantity": 1
+              }
+            },
+            {
+              arrayFilters: [{ "product.pid": objectIdPid }],
+              new: true
+            }
+          );
+      
+          if (!cart.products.some(product => product.pid.equals(objectIdPid))) {
+            await cartModel.updateOne(
+              { _id: cartId },
+              { $addToSet: { products: { pid: objectIdPid, quantity: 1 } } }
+            );
+          }
+      
+          return await cartModel.findById(cartId);
+        } catch (error) {
+          throw new Error(`Error al agregar el producto al carrito: ${error.message}`);
+        }
+      }
+
+    async update(id, cart) {
+        try {
+            const updatedCart = await cartModel.findByIdAndUpdate(id, cart, { new: true });
             return updatedCart;
         } catch (error) {
-            throw new Error(`Error al añadir el producto al carrito: ${error.message}`);
+            throw new Error(`Error al actualizar el carrito: ${error.message}`);
         }
     }
-    
-    removeProductFromCart = async(pid, cid) => {
+
+    async delete(id) {
         try {
-            const cart = await cartsRepo.getById(cid);
-
-            if (!pid) {
-                cart.products = [];
-                await cart.save();
-                return cart;
-            }
-
-            const product = await productsRepo.getById(pid);
-            if (!product) {
-                throw new Error('El producto con id ' + pid + ' no existe');
-            }
-
-            const productIndex = cart.products.findIndex(item => item.pid.equals(pid));
-    
-            if (productIndex !== -1) {
-                if (cart.products[productIndex].quantity > 1) {
-                    cart.products[productIndex].quantity--;
-                } else {
-                    cart.products.splice(productIndex, 1);
-                }
-            } else {
-                throw new Error('El producto con id ' + pid + ' no está en el carrito');
-            }
-
-            await cart.save();
-            return cart;
+            const deletedCart = await cartModel.findByIdAndDelete(id);
+            return deletedCart;
         } catch (error) {
-            throw new Error('Error al eliminar el producto del carrito: ' + error.message);
+            throw new Error(`Error al eliminar el carrito: ${error.message}`);
         }
     }
 }

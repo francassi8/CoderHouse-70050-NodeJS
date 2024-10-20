@@ -1,6 +1,6 @@
 import { Router } from "express";
-import cartDao from '../dao/class/Cart.dao.js';
-import { ticketDao } from '../dao/class/Ticket.dao.js';
+import cartDao from '../repositories/cart.repository.js';
+import { ticketsRepo } from '../repositories/ticket.repository.js';
 import { cartModel } from '../dao/model/cart.model.js';
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { soloUser } from "../middlewares/authorization.js";
@@ -10,8 +10,8 @@ const cartDaoInstance = new cartDao();
 
 app.post('/', invokePassport('jwt'), async (req, res) => {
     try {
-        await cartDaoInstance.createCart();
-        res.status(201).json({ message: 'Carrito Creado!'})
+        const newCart = await cartDaoInstance.createCart();
+        return res.status(200).json({ message: 'Carrito Creado!', result: newCart });
     } catch (error) {
         return res.status(500).json({ error: 'Falla al crear el carrito'});
     }
@@ -93,7 +93,7 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
       if (!cart) {
         return res.status(500).json({ error: 'Carrito no encontrado' });
       }
-      const products = await ticketDao.getProductsInCart(cart);
+      const products = await ticketsRepo.getProductsInCart(cart);
       let processedProducts = [];
       let unprocessedProducts = [];
       for (const product of products) {
@@ -111,7 +111,7 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
         }
       }
       if (processedProducts.length > 0) {
-        const ticket = await ticketDao.createTicket(cart, processedProducts);
+        const ticket = await ticketsRepo.createTicket(cart, processedProducts);
         return res.status(201).json({ status: 'success', message: 'Purchase completed', ticket });
       } else {
         return res.status(200).json({ status: 'success', message: 'Purchase incomplete', unprocessedProducts });

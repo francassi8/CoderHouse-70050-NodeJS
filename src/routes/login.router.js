@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register } from "../dao/class/user.dao.js";
+import { login, register } from "../repositories/user.repository.js";
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { UserDTO } from '../dto/user.dto.js';
 

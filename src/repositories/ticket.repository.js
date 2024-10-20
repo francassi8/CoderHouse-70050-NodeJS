@@ -1,8 +1,8 @@
-import { ticketDao } from '../dao/class/Ticket.dao.js';
+import TicketDao from '../dao/class/Ticket.dao.js';
 
 class TicketRepository {
   constructor() {
-    this.ticketDao = ticketDao;
+    this.ticketDao = new TicketDao();
   }
 
   async createTicket(cart, products) {
@@ -30,4 +30,4 @@ class TicketRepository {
   }
 }
 
-export default TicketRepository;
+export const ticketsRepo = new TicketRepository();

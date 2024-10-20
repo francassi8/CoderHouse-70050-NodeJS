@@ -1,84 +1,51 @@
-import { ProductDTO } from "../../dto/product.dto.js";
-import { productsRepo } from '../../repositories/index.js';
+import { productModel } from '../model/product.model.js';
 
-export default class ProductDAO {
-    constructor() {
-        this.productsRepo = productsRepo;
-    }
-
-    getProductList = async(query, limit, page, sort) => {
+export default class ProductDao {
+    async getAll(query, limit, page, sort) {
         try {
-            const productList = await this.productsRepo.getAll(query, limit, page, sort);
-            return productList.map(product => new ProductDTO(product));
+            const products = await productModel.find(query)
+                .limit(limit)
+                .skip((page - 1) * limit)
+                .sort(sort);
+            return products;
         } catch (error) {
-            throw new Error('Error al obtener los Productos: ' + error.message);
+            throw new Error(`Error al obtener los Productos: ${error.message}`);
         }
     }
 
-    getProductByID = async(pid) => {
-        const product = await this.productsRepo.getById(pid);
-        if (!product) {
-            throw new Error('El producto con id ' + pid + ' no existe');
-        } else {
-            return new ProductDTO(product);
-        }
-    }
-
-    addProduct = async(product) => {
-        let errorMessage = '';
-
-        if (!product.title) {
-            errorMessage = 'Nombre';
-        }
-        if (!product.description) {
-            errorMessage += ' Descripcion';
-        }
-        if (!product.price) {
-            errorMessage += ' Precio';
-        }
-        if (!product.stock) {
-            errorMessage += ' Stock';
-        }
-        if (!product.category) {
-            errorMessage += ' Categoria';
-        }
-
-        if (errorMessage) {
-            throw new Error('Se requieren los siguientes campos: ' + errorMessage);
-        }
-
+    async getById(id) {
         try {
-            const newProduct = await this.productsRepo.add(product);
-            return new ProductDTO(newProduct);
+            const product = await productModel.findById(id);
+            return product;
         } catch (error) {
-            throw new Error('Error al anadir el Producto: ' + error.message);
-        }
-        
-    }
-    
-    updateProduct = async(updatedProduct, pid) => {
-        try {
-            const productId = typeof pid === 'string' ? parseInt(pid, 10) : pid;
-            const updated = await this.productsRepo.update(productId, updatedProduct);
-            if (!updated) {
-                throw new Error('El producto con id ' + productId + ' no existe');
-            }
-            return new ProductDTO(updated);
-        } catch (error) {
-            throw new Error('Error al actualizar el Producto: ' + error.message);
+            throw new Error(`Error al obtener los Productos: ${error.message}`);
         }
     }
 
-    deleteProduct = async(pid)=> {
+    async add(product) {
         try {
-            const deleted = await this.productsRepo.delete(id);
-            if (!deleted) {
-                throw new Error('El producto con id ' + pid + ' no existe');
-            }
-
-            return new ProductDTO(deleted);
+            const newProduct = await productModel.create(product);
+            return newProduct;
         } catch (error) {
-            throw new Error('Error al eliminar el Producto: ' + error.message);
+            throw new Error(`Error al crear el Producto: ${error.message}`);
+        }
+    }
+
+    async update(id, product) {
+        try {
+            const updatedProduct = await productModel.findByIdAndUpdate(id, product, { new: true });
+            return updatedProduct;
+        } catch (error) {
+            throw new Error(`Error al actualizar el Producto: ${error.message}`);
+        }
+    }
+
+    async delete(id) {
+        try {
+            const deletedProduct = await productModel.findByIdAndDelete(id);
+            return deletedProduct;
+        } catch (error) {
+            throw new Error(`Error al eliminar el Producto: ${error.message}`);
         }
     }
 }

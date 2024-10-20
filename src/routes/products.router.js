@@ -1,16 +1,16 @@
 import { Router } from "express";
-import ProductDAO  from "../dao/class/Product.dao.js";
+import ProductRepository  from "../repositories/products.repository.js";
 //import { productModel } from "../dao/model/product.model.js";
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { soloAdmin } from "../middlewares/authorization.js";
 
 const app = Router();
-const productDaoInstance = new ProductDAO();
+const productRepoInstance = new ProductRepository();
 
 app.get('/', invokePassport('jwt'), async (req, res) => {
     try {
       const { limit = 10, page = 1, sort = 'ASC', ...query } = req.query;
-      const productList = await productDaoInstance.getProductList(query, limit, page, sort);
+      const productList = await productRepoInstance.getProductList(query, limit, page, sort);
       res.json(productList);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -20,7 +20,7 @@ app.get('/', invokePassport('jwt'), async (req, res) => {
 app.get('/:pid', invokePassport('jwt'), async (req, res) => {
     try {
         const pid = req.params.pid;
-        const productFind = await productDaoInstance.getProductByID(pid);
+        const productFind = await productRepoInstance.getProductByID(pid);
         if (!productFind) {
             return res.status(404).json({ status: "error", error: 'Producto no encontrado' });
         }
@@ -33,7 +33,7 @@ app.get('/:pid', invokePassport('jwt'), async (req, res) => {
 app.post('/', invokePassport('jwt'), soloAdmin, async (req, res) => {
     try {
         const product = req.body;
-        const newProduct = await productDaoInstance.addProduct(product);
+        const newProduct = await productRepoInstance.addProduct(product);
         res.status(201).json({ message: 'Producto añadido!', result: newProduct });
     } catch (error) {
         return res.status(500).json({ error: 'Falla al añadir el producto. Error: ' + error.message });
@@ -44,7 +44,7 @@ app.put('/:pid', invokePassport('jwt'), soloAdmin, async (req, res) => {
     try {
         const pid = req.params.pid;
         const product = req.body;
-        const updatedProduct = await productDaoInstance.updateProduct(pid, product);
+        const updatedProduct = await productRepoInstance.updateProduct(pid, product);
         
         if (!updatedProduct) {
             return res.status(404).json({ error: 'Producto no encontrado' });
@@ -58,7 +58,7 @@ app.put('/:pid', invokePassport('jwt'), soloAdmin, async (req, res) => {
 app.delete('/:pid', invokePassport('jwt'), soloAdmin, async (req, res) => {
     try {
         const pid = req.params.pid;
-        const deletedProduct = await productDaoInstance.deleteProduct(pid);
+        const deletedProduct = await productRepoInstance.deleteProduct(pid);
 
         if (!deletedProduct) {
             return res.status(404).json({ error: 'Producto no encontrado' });
