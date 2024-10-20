@@ -2,22 +2,24 @@ import express from 'express';
 import {__dirname} from '../utils.js'
 import dotenv from 'dotenv';
 import router from '../routes/index.js';
-import { connectionDB } from '../mongo/connection.js';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import initializePassport from '../passport/jwt.passport.js';
-import { ROUTE_PATH } from '../constants/routesPath.js'
-import handlebars from 'express-handlebars'
-import cartRouter from '../routes/carts.router.js'
-import productRouter from '../routes/products.router.js'
-import HomeRouters from '../routes/home.router.js'
-import RealTimeRouters from '../routes/realtimeproducts.router.js'
-import productsOfCart from '../routes/productsOfCart.router.js'
-import loginRouter from '../routes/login.router.js'
+import mongoose from 'mongoose';
 
+import handlebars from 'express-handlebars'
+dotenv.config();
+
+const connectionDB = async() => {
+    try{
+        await mongoose.connect(process.env.MONGO_STRING ,{ dbName: process.env.USE_DB });
+        console.log('BBDD conectada')
+    } catch (e) {
+        console.log('Error al conectarse a la bbdd');
+    }
+}
 
 export const AppInit = (app) => {
-    dotenv.config();
     connectionDB();
     initializePassport();
     passport.initialize();
@@ -30,12 +32,4 @@ export const AppInit = (app) => {
     app.engine('handlebars', handlebars.engine());
     app.set('views', __dirname + '/views');
     app.set('view engine', 'handlebars');
-
-    app.use(ROUTE_PATH.api_carts, cartRouter);
-    app.use(ROUTE_PATH.api_products, productRouter);
-    app.use(ROUTE_PATH.api_session, loginRouter);
-    
-    app.use(ROUTE_PATH.home,HomeRouters);
-    app.use(ROUTE_PATH.realTime,RealTimeRouters);
-    app.use(ROUTE_PATH.productsOfCart,productsOfCart);
 }

@@ -1,24 +1,23 @@
-import { cartModel } from '../model/cart.model.js';
-import { productModel } from '../model/product.model.js';
+import { productsRepo, cartsRepo } from '../../repositories/index.js';
 import mongoose from 'mongoose';
 
-class Cart {
+export default class CartDao {
     constructor() {
-        this.cartList = [];
+        this.cartsRepo = cartsRepo;
     }
 
-    async getCartList() {
+    getCartList = async () => {
         try {
-            this.cartList = await cartModel.find().populate('products.pid');
+            this.cartList = await cartsRepo.getAll();
             return this.cartList;
         } catch (error) {
             throw new Error('No hay carritos creados: ' + error.message);
         }
     }
 
-    async getCartByID(cid) {
+    getCartByID = async(cid) => {
         try {
-            const cart = await cartModel.findById(cid).populate('products.pid');
+            const cart = await cartsRepo.getById(cid);
             if (!cart) {
                 throw new Error('El carrito con id ' + cid + ' no existe');
             }
@@ -28,9 +27,9 @@ class Cart {
         }
     }
 
-    async createCart() {
+    createCart = async() => {
         try {
-            const newCart = new cartModel({ products: [] });
+            const newCart = new cartsRepo.add();
             await newCart.save();
             return newCart;
         } catch (error) {
@@ -38,33 +37,18 @@ class Cart {
         }
     }
 
-    async addProductToCart(pid, cid) {
+    addProductToCart = async(pid, cid) => {
         try {
-            const cart = await this.getCartByID(cid);
-            const product = await productModel.findById(pid);
-            if (!product) {
-                throw new Error('El producto con id ' + pid + ' no existe');
-            }
-
-            const objectIdPid = new mongoose.Types.ObjectId(pid);
-            const productIndex = cart.products.findIndex(item => item.pid.equals(objectIdPid));
-    
-            if (productIndex !== -1) {
-                cart.products[productIndex].quantity++;
-            } else {
-                cart.products.push({ pid: pid, quantity: 1 });
-            }
-
-            await cart.save();
-            return cart;
+            const updatedCart = await this.cartRepository.addProductToCart(cid, pid);
+            return updatedCart;
         } catch (error) {
-            throw new Error('Error al añadir el producto al carrito: ' + error.message);
+            throw new Error(`Error al añadir el producto al carrito: ${error.message}`);
         }
     }
-
-    async removeProductFromCart(pid, cid) {
+    
+    removeProductFromCart = async(pid, cid) => {
         try {
-            const cart = await this.getCartByID(cid);
+            const cart = await this.getById(cid);
 
             if (!pid) {
                 cart.products = [];
@@ -72,7 +56,7 @@ class Cart {
                 return cart;
             }
 
-            const product = await productModel.findById(pid);
+            const product = await productsRepo.getById(pid);
             if (!product) {
                 throw new Error('El producto con id ' + pid + ' no existe');
             }
@@ -97,5 +81,3 @@ class Cart {
         }
     }
 }
-
-export default Cart;

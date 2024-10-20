@@ -2,14 +2,11 @@ import { AppInit } from './init/initialConfig.js';
 import express from 'express'
 import {__dirname} from './utils.js'
 import { Server } from 'socket.io';
-import productClass from './class/Product.js'
 
 const app = express();
 AppInit(app);
 
-export const product = new productClass(__dirname + '/data/products.json')
-
-const httpServer = app.listen(8080, () => {
+const httpServer = app.listen(process.env.PORT, () => {
     console.log('Servidor Conectado')
 })
 
