@@ -7,7 +7,8 @@ const cartSchema = new Schema({
             pid: { type: Schema.Types.ObjectId, ref: 'products' },
             quantity: { type: Number, default: 1 }
         }
-    ]
+    ],
+    user: { type: Schema.Types.ObjectId, ref: 'users' },
 });
 cartSchema.plugin(mongoosePaginate);
 export const cartModel = model('Cart', cartSchema);

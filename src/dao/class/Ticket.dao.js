@@ -1,17 +1,18 @@
 import { TicketModel } from '../model/ticket.model.js';
+import { cartModel } from '../model/cart.model.js';
 
 export default class TicketDao {
   constructor() {
     this.ticketModel = TicketModel;
   }
 
-  async createTicket(cart, products) {
+  async createTicket(cart, products, totalAmount) {
     try {
       const ticket = new this.ticketModel({
         code: this.generateCode(),
         purchase_datetime: new Date(),
-        amount: cart.total,
-        purchaser: cart.purchaser,
+        amount: totalAmount,
+        purchaser: cart.user,
         products: products,
       });
       await ticket.save();
@@ -34,6 +35,19 @@ export default class TicketDao {
       return await this.ticketModel.find();
     } catch (error) {
       throw new Error('Error al obtener los tickets: ' + error.message);
+    }
+  }
+
+  async getProductsInCart(cartId) {
+    try {
+      const cart = await cartModel.findById(cartId).populate('products.pid');
+      const productsInCart = cart.products.map(product => ({
+        pid: product.pid,
+        quantity: product.quantity,
+      }));
+      return productsInCart;
+    } catch (error) {
+      throw new Error(`Error al obtener los productos del carrito: ${error.message}`);
     }
   }
 

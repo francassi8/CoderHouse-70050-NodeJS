@@ -68,6 +68,18 @@ export default class ProductRepository {
         }
     }
 
+    updateStock = async(pid, quantity) => {
+        try {
+            const updated = await this.ProductDao.updateStock(pid, quantity);
+            if (!updated) {
+                throw new Error('El producto con id ' + pid + ' no existe');
+            }
+            return new ProductDTO(updated);
+        } catch (error) {
+            throw new Error('Error al actualizar el Stock: ' + error.message);
+        }
+    }
+
     deleteProduct = async(pid)=> {
         try {
             const deleted = await this.ProductDao.delete(pid);

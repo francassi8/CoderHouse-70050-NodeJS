@@ -24,9 +24,9 @@ export default class CartDao {
         }
     }
 
-    async add(cart) {
+    async add(userID) {
         try {
-            const newCart = await cartModel.create(cart);
+            const newCart = await cartModel.create({user: userID});
             return newCart;
         } catch (error) {
             throw new Error(`Error al crear el carrito: ${error.message}`);

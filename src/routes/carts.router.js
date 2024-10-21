@@ -1,16 +1,15 @@
 import { Router } from "express";
-import cartDao from '../repositories/cart.repository.js';
-import { ticketsRepo } from '../repositories/ticket.repository.js';
+import { cartsRepo, ticketsRepo, productsRepo } from '../repositories/index.js';
 import { cartModel } from '../dao/model/cart.model.js';
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { soloUser } from "../middlewares/authorization.js";
 
 const app = Router();
-const cartDaoInstance = new cartDao();
 
-app.post('/', invokePassport('jwt'), async (req, res) => {
+app.post('/:uid', invokePassport('jwt'), async (req, res) => {
     try {
-        const newCart = await cartDaoInstance.createCart();
+        const userID = req.params.uid;
+        const newCart = await cartsRepo.createCart(userID);
         return res.status(200).json({ message: 'Carrito Creado!', result: newCart });
     } catch (error) {
         return res.status(500).json({ error: 'Falla al crear el carrito'});
@@ -37,7 +36,7 @@ app.get('/', invokePassport('jwt'), async (req, res) => {
             }
         }
 
-        const cartList = await cartDaoInstance.getCartList(filter, limit, page, sort);
+        const cartList = await cartsRepo.getCartList(filter, limit, page, sort);
         res.status(200).json({ status: "success", resultado: cartList });
     } catch (error) {
         return res.status(500).json({ error: error.message });
@@ -46,7 +45,7 @@ app.get('/', invokePassport('jwt'), async (req, res) => {
 
 app.get('/:cid', invokePassport('jwt'), async (req, res) => {
     try {
-        const cartFind = await cartDaoInstance.getCartByID(req.params.cid);
+        const cartFind = await cartsRepo.getCartByID(req.params.cid);
         if (!cartFind) {
             return res.status(404).json({ status: "error", message: "carrito no encontrado" });
         }
@@ -58,7 +57,7 @@ app.get('/:cid', invokePassport('jwt'), async (req, res) => {
 
 app.get('/:cid', invokePassport('jwt'), async (req, res) => {
     try {
-        const cart = await cartDaoInstance.getCartByID(req.params.cid);
+        const cart = await cartsRepo.getCartByID(req.params.cid);
         if (!cart) {
             return res.status(404).json({ status: "error", message: "Cart not found" });
         }
@@ -70,7 +69,7 @@ app.get('/:cid', invokePassport('jwt'), async (req, res) => {
 
 app.post('/:cid/product/:pid', invokePassport('jwt'), soloUser, async (req, res) => {
     try {
-        await cartDaoInstance.addProductToCart(req.params.pid,req.params.cid);
+        await cartsRepo.addProductToCart(req.params.pid,req.params.cid);
         res.status(201).json({ status: "success", message: 'item agregado a carrito!'})
     } catch (error) {
         return res.status(500).json({ status: "error", error: 'Falla al agregar producto. Error: '+error.message});
@@ -79,7 +78,7 @@ app.post('/:cid/product/:pid', invokePassport('jwt'), soloUser, async (req, res)
 
 app.delete('/:cid/product/:pid', invokePassport('jwt'), async (req, res) => {
     try {
-        await cartDaoInstance.removeProductFromCart(req.params.pid,req.params.cid);
+        await cartsRepo.removeProductFromCart(req.params.pid,req.params.cid);
         res.status(201).json({ message: 'item eliminado del carrito!'})
     } catch (error) {
         return res.status(500).json({ error: 'Falla al eliminar producto. Error: '+error.message});
@@ -89,7 +88,7 @@ app.delete('/:cid/product/:pid', invokePassport('jwt'), async (req, res) => {
 app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => {
     try {
       const { cid } = req.params;
-      const cart = await cartDaoInstance.getById(cid);
+      const cart = await cartsRepo.getCartByID(cid);
       if (!cart) {
         return res.status(500).json({ error: 'Carrito no encontrado' });
       }
@@ -97,7 +96,7 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
       let processedProducts = [];
       let unprocessedProducts = [];
       for (const product of products) {
-        if (product.stock >= product.quantity) {
+        if (product.pid.stock >= product.quantity) {
           const updatedProduct = await productsRepo.updateStock(product.pid, -product.quantity);
           processedProducts.push({
             pid: product.pid,
@@ -112,9 +111,9 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
       }
       if (processedProducts.length > 0) {
         const ticket = await ticketsRepo.createTicket(cart, processedProducts);
-        return res.status(201).json({ status: 'success', message: 'Purchase completed', ticket });
+        return res.status(201).json({ status: 'success', message: 'Compra Procesada!', ticket });
       } else {
-        return res.status(200).json({ status: 'success', message: 'Purchase incomplete', unprocessedProducts });
+        return res.status(200).json({ status: 'success', message: 'Compra no procesada', unprocessedProducts });
       }
     } catch (error) {
       return res.status(500).json({ status: 'error', message: error.message });

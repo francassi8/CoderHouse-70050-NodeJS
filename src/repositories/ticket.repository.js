@@ -1,13 +1,16 @@
 import TicketDao from '../dao/class/Ticket.dao.js';
 
-class TicketRepository {
+export default class TicketRepository {
   constructor() {
     this.ticketDao = new TicketDao();
   }
 
   async createTicket(cart, products) {
     try {
-      return await this.ticketDao.createTicket(cart, products);
+      const productsInCart = await this.getProductsInCart(cart._id);
+      const totalAmount = productsInCart.reduce((acc, product) => acc + product.pid.price * product.quantity, 0);
+      const ticket = await this.ticketDao.createTicket(cart, products, totalAmount);
+      return ticket;
     } catch (error) {
       throw new Error('Error al crear el ticket: ' + error.message);
     }
@@ -28,6 +31,12 @@ class TicketRepository {
       throw new Error('Error al obtener los tickets: ' + error.message);
     }
   }
-}
 
-export const ticketsRepo = new TicketRepository();
+  async getProductsInCart(cartId) {
+    try {
+      return await this.ticketDao.getProductsInCart(cartId);
+    } catch (error) {
+      throw new Error(`Error al obtener los productos del carrito: ${error.message}`);
+    }
+  }
+}

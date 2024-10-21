@@ -1,4 +1,5 @@
 import { productModel } from '../model/product.model.js';
+import mongoose from 'mongoose';
 
 export default class ProductDao {
     async getAll(query, limit, page, sort) {
@@ -46,6 +47,19 @@ export default class ProductDao {
             return deletedProduct;
         } catch (error) {
             throw new Error(`Error al eliminar el Producto: ${error.message}`);
+        }
+    }
+
+    async updateStock(productId, quantity) {
+        try {
+          const objectIdPid = new mongoose.Types.ObjectId(productId);
+          const product = await productModel.updateOne(
+            { _id: objectIdPid },
+            { $inc: { stock: -quantity } }
+          );
+          return product;
+        } catch (error) {
+          throw new Error(`Error al actualizar el stock del producto: ${error.message}`);
         }
     }
 }
