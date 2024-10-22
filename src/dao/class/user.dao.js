@@ -19,30 +19,5 @@ export default class UserDao {
     }
   }
 
-  async getUserById(id) {
-    try {
-        const user = await UserModel.findById(id);
-        return user;
-    } catch (error) {
-        throw new Error(`Error al obtener el usuario: ${error.message}`);
-    }
-  }
-
-  async updateUser(id, user) {
-    try {
-        const updatedUser = await UserModel.findByIdAndUpdate(id, user, { new: true });
-        return updatedUser;
-    } catch (error) {
-        throw new Error(`Error al actualizar el usuario: ${error.message}`);
-    }
-  }
-
-  async deleteUser(id) {
-    try {
-        await UserModel.findByIdAndDelete(id);
-    } catch (error) {
-        throw new Error(`Error al eliminar el usuario: ${error.message}`);
-    }
-  }
 }
 

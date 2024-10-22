@@ -97,21 +97,22 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
       let unprocessedProducts = [];
       for (const product of products) {
         if (product.pid.stock >= product.quantity) {
-          const updatedProduct = await productsRepo.updateStock(product.pid, product.quantity);
-          processedProducts.push({
-            pid: product.pid,
-            quantity: product.quantity,
-            name: product.name,
-            price: product.price,
-            stock: updatedProduct.stock,
-          });
+            const updatedProduct = await productsRepo.updateStock(product.pid, product.quantity);
+            await cartsRepo.removeProductFromCart(product.pid._id,cid,true);
+            processedProducts.push({
+                pid: product.pid,
+                quantity: product.quantity,
+                name: product.name,
+                price: product.price,
+                stock: updatedProduct.stock,
+            });
         } else {
           unprocessedProducts.push(product);
         }
       }
       if (processedProducts.length > 0) {
         const ticket = await ticketsRepo.createTicket(cart, processedProducts);
-        return res.status(201).json({ status: 'success', message: 'Compra Procesada!', ticket });
+        return res.status(201).json({ status: 'success', message: 'Compra Procesada!', ticket , processedProducts});
       } else {
         return res.status(200).json({ status: 'success', message: 'Compra no procesada', unprocessedProducts });
       }
