@@ -7,6 +7,7 @@ import HomeRouters from '../routes/home.router.js'
 import RealTimeRouters from '../routes/realtimeproducts.router.js'
 import productsOfCart from '../routes/productsOfCart.router.js'
 import loginRouter from '../routes/login.router.js'
+import ticketRouter from '../routes/ticket.router.js'
 
 const app = Router()
 
@@ -14,10 +15,10 @@ app.use(ROUTE_PATH.api_session, LoginRouter);
 app.use(ROUTE_PATH.api_carts, cartRouter);
 app.use(ROUTE_PATH.api_products, productRouter);
 app.use(ROUTE_PATH.api_session, loginRouter);
-
 app.use(ROUTE_PATH.home,HomeRouters);
 app.use(ROUTE_PATH.realTime,RealTimeRouters);
 app.use(ROUTE_PATH.productsOfCart,productsOfCart);
+app.use(ROUTE_PATH.api_ticket, ticketRouter);
 
 
 export default app

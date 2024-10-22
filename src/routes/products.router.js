@@ -1,6 +1,5 @@
 import { Router } from "express";
-import ProductRepository  from "../repositories/products.repository.js";
-//import { productModel } from "../dao/model/product.model.js";
+import ProductRepository  from "../repositories/Products.repository.js";
 import { invokePassport } from "../middlewares/handleErrors.js";
 import { soloAdmin } from "../middlewares/authorization.js";
 

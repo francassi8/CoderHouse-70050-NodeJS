@@ -51,4 +51,13 @@ export default class TicketDao {
       throw new Error(`Error al obtener los productos del carrito: ${error.message}`);
     }
   }
+
+  async getTicketByCode(code) {
+    try {
+      const ticket = await this.ticketModel.findOne({ code });
+      return ticket;
+    } catch (error) {
+      throw new Error(`Error al obtener el ticket: ${error.message}`);
+    }
+  }
 }
