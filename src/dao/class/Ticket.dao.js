@@ -1,5 +1,6 @@
 import { TicketModel } from '../model/ticket.model.js';
 import { cartModel } from '../model/cart.model.js';
+import { generateCode } from '../../utils.js';
 
 export default class TicketDao {
   constructor() {
@@ -9,7 +10,7 @@ export default class TicketDao {
   async createTicket(cart, products, totalAmount) {
     try {
       const ticket = new this.ticketModel({
-        code: this.generateCode(),
+        code: generateCode(),
         purchase_datetime: new Date(),
         amount: totalAmount,
         purchaser: cart.user,
@@ -49,9 +50,5 @@ export default class TicketDao {
     } catch (error) {
       throw new Error(`Error al obtener los productos del carrito: ${error.message}`);
     }
-  }
-
-  generateCode() {
-    return Math.random().toString(36).substr(2, 9).toUpperCase();
   }
 }

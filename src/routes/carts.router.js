@@ -8,11 +8,11 @@ const app = Router();
 
 app.post('/:uid', invokePassport('jwt'), async (req, res) => {
     try {
-        const userID = req.params.uid;
+        const userID = req.user._id;
         const newCart = await cartsRepo.createCart(userID);
         return res.status(200).json({ message: 'Carrito Creado!', result: newCart });
     } catch (error) {
-        return res.status(500).json({ error: 'Falla al crear el carrito'});
+        return res.status(500).json({ error: error.message });
     }
 })
 
@@ -97,7 +97,7 @@ app.post('/:cid/purchase', invokePassport('jwt'), soloUser, async (req, res) => 
       let unprocessedProducts = [];
       for (const product of products) {
         if (product.pid.stock >= product.quantity) {
-          const updatedProduct = await productsRepo.updateStock(product.pid, -product.quantity);
+          const updatedProduct = await productsRepo.updateStock(product.pid, product.quantity);
           processedProducts.push({
             pid: product.pid,
             quantity: product.quantity,

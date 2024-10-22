@@ -60,7 +60,7 @@ export default class ProductRepository {
         try {
             const updated = await this.ProductDao.update(pid, updatedProduct);
             if (!updated) {
-                throw new Error('El producto con id ' + productId + ' no existe');
+                throw new Error('El producto con id ' + pid + ' no existe');
             }
             return new ProductDTO(updated);
         } catch (error) {

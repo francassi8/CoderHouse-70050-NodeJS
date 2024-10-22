@@ -27,14 +27,18 @@ export default class CartRepository {
         }
     }
 
-    createCart = async(userID) => {
+    async createCart(userID) {
         try {
-            const newCart = await this.CartDao.add(userID);
-            return newCart;
+          const existingCart = await this.CartDao.getCartByUser(userID.toString());
+            if (existingCart) {
+                throw new Error('Ya existe un carrito para este usuario');
+            }
+          const newCart = await this.CartDao.add(userID);
+          return newCart;
         } catch (error) {
-            throw new Error('Error al crear el carrito: ' + error.message);
+          throw new Error(`Error al crear el carrito: ${error.message}`);
         }
-    }
+      }
 
     addProductToCart = async(pid, cid) => {
         try {

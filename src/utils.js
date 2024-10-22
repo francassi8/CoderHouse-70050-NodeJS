@@ -24,3 +24,7 @@ export const generadorToken = (user) => {
     const token = jwt.sign(user,process.env.SECRET,{ expiresIn: '24h' })
     return token
 }
+
+export const generateCode = () => {
+    return Math.random().toString(36).substr(2, 9).toUpperCase();
+}

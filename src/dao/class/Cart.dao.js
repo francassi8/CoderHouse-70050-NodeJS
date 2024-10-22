@@ -79,4 +79,13 @@ export default class CartDao {
             throw new Error(`Error al eliminar el carrito: ${error.message}`);
         }
     }
+
+    async getCartByUser(userID) {
+      try {
+          const cart = await cartModel.findOne({ user: userID }).lean();
+          return cart;
+      } catch (error) {
+          throw new Error(`Error al obtener el carrito: ${error.message}`);
+      }
+    }
 }
