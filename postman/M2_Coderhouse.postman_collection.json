@@ -61,6 +61,33 @@
 				"url": "localhost:8085/api/sessions/login"
 			},
 			"response": []
+		},
+		{
+			"name": "ComprarCarrito",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"campera abc\",\n        \"description\": \"Campera abcsde\",\n        \"code\": 3000,\n        \"price\": 150,\n        \"stock\": 2,\n        \"category\": \"Invierno\",\n        \"thumbnails\": \"\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "localhost:8080/api/carts/671582a7dc7dc1d013d825b0/purchase"
+			},
+			"response": []
 		}
 	]
 }
